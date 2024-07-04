@@ -25,6 +25,11 @@ class User {
 
     const hashedPassword = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
 
+    if(typeof hashedPassword != "string"){
+      console.log("Err Not a String");
+      hashedPassword = hashedPassword.toString();
+    }
+
     const result = await db.query(
       `INSERT INTO users 
           (username, password, first_name, last_name, email, phone) 

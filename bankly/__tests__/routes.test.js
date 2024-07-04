@@ -12,32 +12,50 @@ const jwt = require("jsonwebtoken");
 const { SECRET_KEY } = require("../config");
 
 // tokens for our sample users
-const tokens = {};
+let tokens = {};
 
 /** before each test, insert u1, u2, and u3  [u3 is admin] */
+
+beforeAll(() => {
+  app.listen(3000, () => console.log("Server Started"));
+});
 
 beforeEach(async function() {
   async function _pwd(password) {
     return await bcrypt.hash(password, 1);
   }
 
+  // First, hash the passwords
+  const hashedPasswords = await Promise.all([
+    _pwd("pwd1"),
+    _pwd("pwd2"),
+    _pwd("pwd3")
+  ]);
+
+  // Then, define the sampleUsers array using the hashed passwords
   let sampleUsers = [
-    ["u1", "fn1", "ln1", "email1", "phone1", await _pwd("pwd1"), false],
-    ["u2", "fn2", "ln2", "email2", "phone2", await _pwd("pwd2"), false],
-    ["u3", "fn3", "ln3", "email3", "phone3", await _pwd("pwd3"), true]
+    ["u1", "fn1", "ln1", "email1", "phone1", hashedPasswords[0], false],
+    ["u2", "fn2", "ln2", "email2", "phone2", hashedPasswords[1], false],
+    ["u3", "fn3", "ln3", "email3", "phone3", hashedPasswords[2], true]
   ];
 
   for (let user of sampleUsers) {
-    await db.query(
-      `INSERT INTO users VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-      user
-    );
-    tokens[user[0]] = createToken(user[0], user[6]);
+    try {
+      console.log(user);
+      await db.query(
+        `INSERT INTO users VALUES ($1, $2, $3, $4, $5, $6, $7)`, user);
+      tokens[user[0]] = createToken(user[0], user[6]);
+    } catch (error) {
+      console.error(`Failed to insert user ${user[0]}:`, error);
+    }
   }
+  console.log(sampleUsers);
 });
+
 
 describe("POST /auth/register", function() {
   test("should allow a user to register in", async function() {
+    console.log("first test");
     const response = await request(app)
       .post("/auth/register")
       .send({
@@ -196,8 +214,10 @@ describe("DELETE /users/[username]", function() {
 
 afterEach(async function() {
   await db.query("DELETE FROM users");
+  tokens = {};
 });
 
 afterAll(function() {
   db.end();
+  app.close(() => console.log("Server Stopped"));
 });

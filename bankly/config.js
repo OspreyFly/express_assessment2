@@ -10,8 +10,8 @@ const BCRYPT_WORK_FACTOR = 10;
 
 const DB_URI =
   process.env.NODE_ENV === 'test'
-    ? 'postgresql:///bankly_test'
-    : 'postgresql:///bankly';
+    ? 'postgresql://noah:password@localhost/bankly_test'
+    : 'postgresql://noah:password@localhost/bankly';
 
 module.exports = {
   BCRYPT_WORK_FACTOR,

@@ -1,9 +1,7 @@
 /** Application for bank.ly */
-
 const express = require('express');
 const app = express();
 const ExpressError = require("./helpers/expressError");
-
 
 app.use(express.json());
 
@@ -32,7 +30,5 @@ app.use(function(err, req, res, next) {
     message: err.message
   });
 });
-
-module.exports = app;
 
 module.exports = app;
