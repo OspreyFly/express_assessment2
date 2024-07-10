@@ -2,20 +2,26 @@
 
 const jwt = require('jsonwebtoken');
 const { SECRET_KEY } = require('../config');
+const ExpressError = require("../helpers/expressError");
 
 /** Authorization Middleware: Requires user is logged in. */
 
 function requireLogin(req, res, next) {
   try {
-    if (req.curr_username) {
+    if (!req.curr_username) {
+      // User is not authenticated, set the response status to 401 and send an error message
+      res.status(401).json({ error: 'Not authenticated' });
+  }
+   else {
+      // User is authenticated, proceed to the next middleware
       return next();
-    } else {
-      return next({ status: 401, message: 'Unauthorized' });
     }
   } catch (err) {
+    // An unexpected error occurred, pass it to the next middleware
     return next(err);
   }
 }
+
 
 /** Authorization Middleware: Requires user is logged in and is staff. */
 
@@ -47,17 +53,25 @@ function requireAdmin(req, res, next) {
 function authUser(req, res, next) {
   try {
     const token = req.body._token || req.query._token;
-    if (token) {
-      let payload = jwt.decode(token);
-      req.curr_username = payload.username;
-      req.curr_admin = payload.admin;
+    if (!token) {
+      return next(new ExpressError('No token provided', 401));
     }
+
+    let payload = jwt.decode(token);
+    if (!payload) {
+      return next(new ExpressError('Failed to decode token', 401));
+    }
+
+    req.curr_username = payload.username;
+    req.curr_admin = payload.admin;
     return next();
+    
   } catch (err) {
-    err.status = 401;
     return next(err);
   }
-} // end
+}
+
+ // end
 
 module.exports = {
   requireLogin,

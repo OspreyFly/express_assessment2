@@ -1,0 +1,3 @@
+- BUG #4: models/user.authenticate() doesn't throw the new ExpressError when (!user).
+- BUG #5: helpers/partialUpdate() doesn't expect and handle missing parameters.
+- BUG #6: middleware/auth.authUser() doesn't respond with (username, isAdmin) when a valid token is provided.

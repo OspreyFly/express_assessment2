@@ -25,11 +25,6 @@ class User {
 
     const hashedPassword = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
 
-    if(typeof hashedPassword != "string"){
-      console.log("Err Not a String");
-      hashedPassword = hashedPassword.toString();
-    }
-
     const result = await db.query(
       `INSERT INTO users 
           (username, password, first_name, last_name, email, phone) 
@@ -84,7 +79,7 @@ class User {
    *
    * */
 
-  static async getAll(username, password) {
+  static async getAll() {
     const result = await db.query(
       `SELECT username,
                 first_name,
@@ -117,8 +112,8 @@ class User {
 
     const user = result.rows[0];
 
-    if (!user) {
-      new ExpressError('No such user', 404);
+    if (!user || user == undefined) {
+      throw new ExpressError('No such user', 404);
     }
 
     return user;

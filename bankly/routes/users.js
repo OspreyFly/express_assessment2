@@ -35,15 +35,12 @@ router.get('/', authUser, requireLogin, async function(req, res, next) {
  *
  */
 
-router.get('/:username', authUser, requireLogin, async function(
-  req,
-  res,
-  next
-) {
+router.get('/:username', authUser, requireLogin, async function(req, res, next) {
   try {
     let user = await User.get(req.params.username);
     return res.json({ user });
   } catch (err) {
+    
     return next(err);
   }
 });
@@ -94,7 +91,7 @@ router.patch('/:username', authUser, requireLogin, requireAdmin, async function(
  * If user cannot be found, return a 404 err.
  */
 
-router.delete('/:username', authUser, requireAdmin, async function(
+router.delete('/:username', authUser, requireLogin, requireAdmin, async function(
   req,
   res,
   next

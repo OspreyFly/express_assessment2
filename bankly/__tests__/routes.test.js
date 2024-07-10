@@ -1,6 +1,3 @@
-// Set ENV VAR to test before we load anything, so our app's config will use
-// testing settings
-
 process.env.NODE_ENV = "test";
 
 const app = require("../app");
@@ -41,7 +38,6 @@ beforeEach(async function() {
 
   for (let user of sampleUsers) {
     try {
-      console.log(user);
       await db.query(
         `INSERT INTO users VALUES ($1, $2, $3, $4, $5, $6, $7)`, user);
       tokens[user[0]] = createToken(user[0], user[6]);
@@ -49,13 +45,11 @@ beforeEach(async function() {
       console.error(`Failed to insert user ${user[0]}:`, error);
     }
   }
-  console.log(sampleUsers);
 });
 
 
 describe("POST /auth/register", function() {
   test("should allow a user to register in", async function() {
-    console.log("first test");
     const response = await request(app)
       .post("/auth/register")
       .send({
@@ -219,5 +213,5 @@ afterEach(async function() {
 
 afterAll(function() {
   db.end();
-  app.close(() => console.log("Server Stopped"));
+  
 });
